@@ -1,7 +1,9 @@
 const contract = require('truffle-contract');
 
 const metacoin_artifact = require('../build/contracts/MetaCoin.json');
+const datastore_artifact = require('../build/contracts/DataStore.json');
 var MetaCoin = contract(metacoin_artifact);
+var DataStore = contract(datastore_artifact);
 
 module.exports = {
   start: function(callback) {
@@ -31,19 +33,37 @@ module.exports = {
     var self = this;
 
     // Bootstrap the MetaCoin abstraction for Use.
-    MetaCoin.setProvider(self.web3.currentProvider);
+    DataStore.setProvider(self.web3.currentProvider);
 
     var meta;
     DataStore.deployed().then(function(instance) {
       meta = instance;
-      return meta.getBalance.call(account, {from: account});
+      return meta.getHistorical.call(account, {from: account});
     }).then(function(value) {
       callback(value.valueOf());
     }).catch(function(e) {
       console.log(e);
       callback("Error 404");
     });
+  },
+  setData: function(account, hash, callback){
+    var self = this;
 
+    // Bootstrap the MetaCoin abstraction for Use.
+    DataStore.setProvider(self.web3.currentProvider);
+
+    var meta;
+    DataStore.deployed().then(function(instance) {
+      meta = instance;
+      return meta.setHistorical(account, hash, {from: account});
+    }).then(function() {
+      //console.log("value");
+      //console.log(value);
+      callback(true);
+    }).catch(function(e) {
+      console.log(e);
+      callback("Error 404");
+    });
   },
   refreshBalance: function(account, callback) {
     var self = this;
