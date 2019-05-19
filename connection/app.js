@@ -27,6 +27,24 @@ module.exports = {
       callback(self.accounts);
     });
   },
+  getData: function(account, callback){
+    var self = this;
+
+    // Bootstrap the MetaCoin abstraction for Use.
+    MetaCoin.setProvider(self.web3.currentProvider);
+
+    var meta;
+    DataStore.deployed().then(function(instance) {
+      meta = instance;
+      return meta.getBalance.call(account, {from: account});
+    }).then(function(value) {
+      callback(value.valueOf());
+    }).catch(function(e) {
+      console.log(e);
+      callback("Error 404");
+    });
+
+  },
   refreshBalance: function(account, callback) {
     var self = this;
 
